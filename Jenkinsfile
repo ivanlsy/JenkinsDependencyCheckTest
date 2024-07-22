@@ -4,8 +4,8 @@ pipeline {
     stages {
         stage('Checkout SCM') {
             steps {
-                // Ensure this points to your remote repository
-                git 'https://github.com/ivanlsy/JenkinsDependencyCheckTest.git'
+                // Checkout the code from your repository
+                git url: 'https://github.com/ivanlsy/JenkinsDependencyCheckTest.git', branch: 'master'
             }
         }
 
@@ -14,7 +14,7 @@ pipeline {
                 dependencyCheck additionalArguments: '''
                 -o ./dependency-check-report
                 -s .
-                -f 'ALL'
+                -f ALL
                 --prettyPrint''', odcInstallation: 'OWASP Dependency-Check Vulnerabilities'
             }
         }

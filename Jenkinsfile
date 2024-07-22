@@ -1,21 +1,28 @@
 pipeline {
-	agent any
-	stages {
-		stage('Checkout SCM') {
-			steps {
-				git '/home/JenkinsDependencyCheckTest'
-			}
-		}
+    agent any
 
-		stage('OWASP DependencyCheck') {
-			steps {
-				dependencyCheck additionalArguments: '--format HTML --format XML', odcInstallation: 'Default'
-			}
-		}
-	}	
-	post {
-		success {
-			dependencyCheckPublisher pattern: 'dependency-check-report.xml'
-		}
-	}
+    stages {
+        stage('Checkout SCM') {
+            steps {
+                // Ensure this points to your remote repository
+                git 'https://github.com/ivanlsy/JenkinsDependencyCheckTest.git'
+            }
+        }
+
+        stage('OWASP Dependency-Check Vulnerabilities') {
+            steps {
+                dependencyCheck additionalArguments: '''
+                -o ./dependency-check-report
+                -s .
+                -f 'ALL'
+                --prettyPrint''', odcInstallation: 'OWASP Dependency-Check Vulnerabilities'
+            }
+        }
+    }
+    
+    post {
+        success {
+            dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml'
+        }
+    }
 }

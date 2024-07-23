@@ -17,8 +17,8 @@ pipeline {
         stage('Code Quality Check via SonarQube') {
             steps {
                 script {
-                    // Make sure the tool name 'SonarQubeScanner' matches what you configured in Jenkins
-                    def scannerHome = tool name: 'SonarQube', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+                    // Ensure the tool name matches what is configured in Jenkins
+                    def scannerHome = tool name: 'SonarQubeScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
                     withSonarQubeEnv('SonarQube') {
                         sh """
                         ${scannerHome}/bin/sonar-scanner \

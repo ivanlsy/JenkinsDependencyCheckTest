@@ -1,28 +1,26 @@
 pipeline {
     agent any
-
     stages {
-        stage('Checkout SCM') {
+        stage ('Checkout') {
             steps {
-                // Checkout the code from your repository
-                git url: 'https://github.com/ivanlsy/JenkinsDependencyCheckTest.git', branch: 'master'
+                git branch:'master', url: 'https://github.com/OWASP/Vulnerable-Web-Application.git'
             }
         }
 
-        stage('OWASP Dependency-Check Vulnerabilities') {
+        stage('Code Quality Check via SonarQube') {
             steps {
-                dependencyCheck additionalArguments: '''
-                -o ./dependency-check-report
-                -s .
-                -f ALL
-                --prettyPrint''', odcInstallation: 'OWASP Dependency-Check Vulnerabilities'
+                script {
+                def scannerHome = tool 'SonarQube';
+                    withSonarQubeEnv('SonarQube') {
+                    sh "/var/jenkins_home/tools/hudson.plugins.sonar.SonarRunnerInstallation/SonarQube/bin/sonar-scanner -Dsonar.projectKey=OWASP -Dsonar.sources=. -Dsonar.host.url=http://172.30.137.160:9000 -Dsonar.token=sqp_70b294e68345dbfdb2105d7d271169eabfab8649"
+                    }
+                }
             }
         }
     }
-    
     post {
-        success {
-            dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml'
+        always {
+            recordIssues enabledForFailure: true, tool: sonarQube()
         }
     }
 }

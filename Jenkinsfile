@@ -1,38 +1,41 @@
 pipeline {
     agent any
-
+    
     environment {
-        SONARQUBE = 'SonarQube' // Ensure this matches the name in Jenkins configuration
+        // Define the SonarQube server URL and token
+        SONARQUBE_SERVER = 'http://172.30.137.160:9000/'
+        SONARQUBE_TOKEN = 'sqp_70b294e68345dbfdb2105d7d271169eabfab8649'
     }
-
+    
     stages {
-        stage('Checkout SCM') {
+        stage('Checkout') {
             steps {
-                git 'https://github.com/ivanlsy/JenkinsDependencyCheckTest.git'
+                git branch: 'master', url: 'https://github.com/2201656/Vulnerable-Web-Application.git'
             }
         }
-
+        
         stage('Code Quality Check via SonarQube') {
             steps {
                 script {
-                    def scannerHome = tool 'SonarQubeScanner'
+                    def scannerHome = tool 'SonarQube';
                     withSonarQubeEnv('SonarQube') {
-                        sh "${scannerHome}/bin/sonar-scanner"
+                        sh """
+                        ${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.projectKey=OWASP \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=${env.SONARQUBE_SERVER} \
+                        -Dsonar.login=${env.SONARQUBE_TOKEN} \
+                        -Dsonar.verbose=true -X
+                        """
                     }
                 }
             }
         }
     }
-
+    
     post {
         always {
-            recordIssues tool: sonarQube(pattern: '**/sonar-report.json')
-        }
-        success {
-            echo 'Pipeline completed successfully!'
-        }
-        failure {
-            echo 'Pipeline failed.'
+                recordIssues enabledForFailure: true, tool: sonarQube()
+            }
         }
     }
-}

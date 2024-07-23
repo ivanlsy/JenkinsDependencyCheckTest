@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'master', url: 'https://github.com/2201656/Vulnerable-Web-Application.git'
+                git branch: 'master', url: 'https://github.com/ivanlsy/JenkinsDependencyCheckTest.git'
             }
         }
         
